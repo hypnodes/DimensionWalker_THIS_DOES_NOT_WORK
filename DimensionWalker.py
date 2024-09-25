@@ -3,52 +3,48 @@ from typing import List
 
 # Function that generates coordinates in n-dimensional space
 def generate_coordinates(*, current: int, max: int, dimensions: int) -> List[float]:
-    assert current <= max, "The current frame cannot be greater than maxFrames."
-
-    scaleFactor = 1 / max
+    # Calculate granularity to evenly distribute points across the dimensions
+    granularity = max + 1  # Minimum granularity to span the frames
     coordinates: List[float] = []
 
+    # Spread the current frame across dimensions more evenly
     for i in range(dimensions):
-        value = (current + i * (max / dimensions)) % (max + 1)
-        normalized_value = value * scaleFactor
+        step_size = i / dimensions  # Spread across dimensions
+        value = (current + step_size) % granularity  # Use step size for smoother distribution
+        normalized_value = value / max  # Normalize the result to [0, 1]
         coordinates.append(normalized_value)
 
     return coordinates
 
 # Custom Node definition
 class DimensionWalker(nodes.Node):
+    @classmethod
+    def INPUT_TYPES(s):
+      return {"required": {
+            "current_frame": int,
+            "max_frames": int,
+            "dimensions": int
+        },}
+    RETURN_TYPES = (float,)  # Change depending on how many outputs you need
+    FUNCTION = "process"
+
+    HELP_TEXT = "Generates coordinates in n-dimensional space based on current_frame and max_frames."
+
     def __init__(self):
         super().__init__()
-
-        # Inputs for 'current_frame' and 'max_frames'
-        self.input("current_frame", nodes.Int)
-        self.input("max_frames", nodes.Int)
 
         # Add widget to select the number of dimensions
         self.dimensions = self.addWidget("Dimensions", nodes.Int, default=3)
 
-        # Dynamically create outputs based on number of dimensions
-        self.outputs = []
-        for i in range(self.dimensions):
-            self.outputs.append(self.addOutput(f"coord_{i}", nodes.Float))
+    def process(self, current_frame, max_frames, dimensions=None):
+        if dimensions is None:
+            dimensions = self.dimensions.getValue()  # Get number of dimensions from widget
 
-        # Add a widget to display the help link (non-clickable)
-        self.help_link = self.addWidget(
-            "Help Link", nodes.String, default="https://github.com/yourusername/your-repo", display_only=True
-        )
-
-    def process(self):
-        # Get the inputs from the node
-        current_frame = self.getInput("current_frame")
-        max_frames = self.getInput("max_frames")
-        dimensions = self.dimensions.getValue()  # Get number of dimensions from widget
-
-        # Generate coordinates using the function
+        # Handle cases where dimensions > max_frames
         coords = generate_coordinates(current=current_frame, max=max_frames, dimensions=dimensions)
 
-        # Output each coordinate element to the respective output
-        for i in range(dimensions):
-            self.setOutput(f"coord_{i}", coords[i])
+        # Output each coordinate element (return first coordinate as example)
+        return coords[0]
 
 # Register the custom node
 nodes.register_node(DimensionWalker, "DimensionWalker")
