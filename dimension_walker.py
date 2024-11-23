@@ -1,9 +1,8 @@
 # Function that generates coordinates in n-dimensional space
-def generate_coordinates(*, current: int, max: int, dimensions: int) -> list[float]:
+def generate_coordinates(*, current: int, max: int, dimensions: int) -> tuple[float, ...]:
     # Calculate granularity to evenly distribute points across the dimensions
     granularity = max + 1  # Minimum granularity to span the frames
-    coordinates: list[float] = []
-
+    coordinates: tuple[float, ...] = tuple()
     # Spread the current frame across dimensions more evenly
     for i in range(dimensions):
         step_size = i / dimensions  # Spread across dimensions
@@ -31,8 +30,13 @@ class DimensionWalker:
             }
         }
 
+    OUTPUT_NODE = True
+
+    @classmethod
+    def IS_CHANGED(s, current, max, dimensions):
+        return dimensions
+
     def RETURN_TYPES(self):
-        # Dynamic return types based on dimensions
         return ("FLOAT",) * self.dimensions
 
     FUNCTION = "process"
@@ -42,16 +46,4 @@ class DimensionWalker:
 
     def process(self, current, max, dimensions):
         self.dimensions = dimensions  # Store for RETURN_TYPES
-        coords = []
-
-        # For each dimension, create a different frequency of oscillation
-        for i in range(dimensions):
-            # Use different frequencies to ensure good coverage
-            frequency = (i + 1) / dimensions
-            # Calculate the position in this dimension
-            value = (current * frequency) % max
-            # Normalize to 0-1 range
-            normalized_value = value / max
-            coords.append(normalized_value)
-
-        return tuple(coords)
+        return generate_coordinates(current=current, max=max, dimensions=dimensions)
