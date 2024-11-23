@@ -1,13 +1,16 @@
 # Function that generates coordinates in n-dimensional space
 def generate_coordinates(*, current: int, max: int, dimensions: int) -> tuple[float, ...]:
-    # Calculate granularity to evenly distribute points across the dimensions
-    granularity = max + 1  # Minimum granularity to span the frames
     coordinates: list[float] = []
-    # Spread the current frame across dimensions more evenly
-    for i in range(dimensions):
-        step_size = i / dimensions  # Spread across dimensions
-        value = (current + step_size) % granularity  # Use step size for smoother distribution
-        normalized_value = value / max  # Normalize the result to [0, 1]
+
+    # Get total number of possible states and wrap current frame if needed
+    total_states = (max + 1) ** dimensions
+    current = current % total_states
+
+    # Treat current frame like a number in base (max+1)
+    # and convert it to coordinates in each dimension
+    for dim in range(dimensions):
+        value = (current // ((max + 1) ** dim)) % (max + 1)
+        normalized_value = value / max
         coordinates.append(normalized_value)
 
     return tuple(coordinates)
