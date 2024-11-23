@@ -39,4 +39,4 @@ class DimensionWalker:
         coords = generate_coordinates(current=current, max=max, dimensions=dimensions)
 
         # Return as tuple for ComfyUI
-        return (coords[0],)
+        return coords
