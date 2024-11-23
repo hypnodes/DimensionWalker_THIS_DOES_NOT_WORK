@@ -9,7 +9,11 @@ NODE_DIR = os.path.dirname(os.path.realpath(__file__))
 folder_paths.add_javascript_path("dimension_walker", os.path.join(NODE_DIR, "js"))
 
 NODE_CLASS_MAPPINGS = {
-    "Dimension Walker 🌀👣": DimensionWalker,
+    "DimensionWalker": DimensionWalker,
 }
 
-__all__ = ['NODE_CLASS_MAPPINGS']
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "DimensionWalker": "Dimension Walker 🌀👣"
+}
+
+__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']
