@@ -21,8 +21,8 @@ class DimensionWalker:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "current_frame  ": ("INT", {"default": 0, "min": 0}),
-                "max_frames": ("INT", {"default": 10, "min": 1}),
+                "current": ("INT", {"default": 0, "min": 0}),
+                "max": ("INT", {"default": 10, "min": 1}),
                 "dimensions": ("INT", {"default": 3, "min": 1})
             },
         }
@@ -34,9 +34,9 @@ class DimensionWalker:
     # Remove __init__ as ComfyUI handles widget creation differently
     # def __init__(self): ...
 
-    def process(self, current_frame, max_frames, dimensions):
+    def process(self, current, max, dimensions):
         # Remove widget reference since we're using input parameters
-        coords = generate_coordinates(current=current_frame, max=max_frames, dimensions=dimensions)
+        coords = generate_coordinates(current=current, max=max, dimensions=dimensions)
 
         # Return as tuple for ComfyUI
         return (coords[0],)
