@@ -27,8 +27,8 @@ class DimensionWalker:
             },
         }
 
-    # Dynamically create return types based on dimensions
     def RETURN_TYPES(self):
+        # Return a tuple of FLOAT types based on dimensions
         return ("FLOAT",) * self.dimensions
 
     FUNCTION = "process"
@@ -39,4 +39,4 @@ class DimensionWalker:
     def process(self, current, max, dimensions):
         self.dimensions = dimensions  # Store for RETURN_TYPES
         coords = generate_coordinates(current=current, max=max, dimensions=dimensions)
-        return tuple(coords)  # Return all coordinates
+        return tuple(coords)  # Return all coordinates as a tuple
