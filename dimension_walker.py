@@ -23,20 +23,20 @@ class DimensionWalker:
             "required": {
                 "current": ("INT", {"default": 0, "min": 0}),
                 "max": ("INT", {"default": 10, "min": 1}),
-                "dimensions": ("INT", {"default": 3, "min": 1})
+                "dimensions": ("INT", {"default": 3, "min": 1, "max": 10})
             },
         }
 
-    # Change return type to tuple of floats
-    RETURN_TYPES = ("FLOAT",) * 3 # Adjust the multiplication based on how many coordinates you want to output
+    # Dynamically create return types based on dimensions
+    def RETURN_TYPES(self):
+        return ("FLOAT",) * self.dimensions
+
     FUNCTION = "process"
 
-    # Remove __init__ as ComfyUI handles widget creation differently
-    # def __init__(self): ...
+    def __init__(self):
+        self.dimensions = 3  # Default value
 
     def process(self, current, max, dimensions):
-        # Remove widget reference since we're using input parameters
+        self.dimensions = dimensions  # Store for RETURN_TYPES
         coords = generate_coordinates(current=current, max=max, dimensions=dimensions)
-
-        # Return as tuple for ComfyUI
-        return coords
+        return tuple(coords)  # Return all coordinates
