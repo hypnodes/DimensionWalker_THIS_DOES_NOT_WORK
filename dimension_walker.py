@@ -14,7 +14,7 @@ def generate_coordinates(*, current: int, max: int, dimensions: int) -> list[flo
     return coordinates
 
 # Custom Node definition
-class DimensionWalker(Node):
+class DimensionWalker:
     CATEGORY = "hypnodes"
 
     @classmethod
