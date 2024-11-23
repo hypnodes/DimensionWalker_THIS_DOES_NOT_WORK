@@ -15,6 +15,10 @@ def generate_coordinates(*, current: int, max: int, dimensions: int) -> list[flo
 
 # Custom Node definition
 class DimensionWalker:
+    """
+    A node that generates n-dimensional coordinates between 0-1,
+    distributed evenly across frames
+    """
     CATEGORY = "hypnodes"
 
     @classmethod
@@ -24,11 +28,11 @@ class DimensionWalker:
                 "current": ("INT", {"default": 0, "min": 0}),
                 "max": ("INT", {"default": 10, "min": 1}),
                 "dimensions": ("INT", {"default": 3, "min": 1, "max": 10})
-            },
+            }
         }
 
     def RETURN_TYPES(self):
-        # Return a tuple of FLOAT types based on dimensions
+        # Dynamic return types based on dimensions
         return ("FLOAT",) * self.dimensions
 
     FUNCTION = "process"
@@ -38,5 +42,16 @@ class DimensionWalker:
 
     def process(self, current, max, dimensions):
         self.dimensions = dimensions  # Store for RETURN_TYPES
-        coords = generate_coordinates(current=current, max=max, dimensions=dimensions)
-        return tuple(coords)  # Return all coordinates as a tuple
+        coords = []
+
+        # For each dimension, create a different frequency of oscillation
+        for i in range(dimensions):
+            # Use different frequencies to ensure good coverage
+            frequency = (i + 1) / dimensions
+            # Calculate the position in this dimension
+            value = (current * frequency) % max
+            # Normalize to 0-1 range
+            normalized_value = value / max
+            coords.append(normalized_value)
+
+        return tuple(coords)

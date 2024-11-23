@@ -6,14 +6,14 @@ import folder_paths
 NODE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # Register the js/ folder as a js path
-folder_paths.add_javascript_path("dimension_walker", os.path.join(NODE_DIR, "js"))
+WEB_DIRECTORY = os.path.join(NODE_DIR, "js")
 
 NODE_CLASS_MAPPINGS = {
-    "DimensionWalker": DimensionWalker,
+    "DimensionWalker": DimensionWalker
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "DimensionWalker": "Dimension Walker 🌀👣"
 }
 
-__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']
+__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
