@@ -2,7 +2,7 @@
 def generate_coordinates(*, current: int, max: int, dimensions: int) -> tuple[float, ...]:
     # Calculate granularity to evenly distribute points across the dimensions
     granularity = max + 1  # Minimum granularity to span the frames
-    coordinates: tuple[float, ...] = tuple()
+    coordinates: list[float] = []
     # Spread the current frame across dimensions more evenly
     for i in range(dimensions):
         step_size = i / dimensions  # Spread across dimensions
@@ -10,7 +10,7 @@ def generate_coordinates(*, current: int, max: int, dimensions: int) -> tuple[fl
         normalized_value = value / max  # Normalize the result to [0, 1]
         coordinates.append(normalized_value)
 
-    return coordinates
+    return tuple(coordinates)
 
 # Custom Node definition
 class DimensionWalker:
@@ -30,20 +30,27 @@ class DimensionWalker:
             }
         }
 
-    OUTPUT_NODE = True
+    def __init__(self):
+        self.dimensions = 3
 
     @classmethod
     def IS_CHANGED(s, current, max, dimensions):
+        # This gets called when dimensions changes in UI
+        s.update_dimensions(dimensions)
         return dimensions
 
-    def RETURN_TYPES(self):
-        return ("FLOAT",) * self.dimensions
+    @classmethod
+    def update_dimensions(s, dimensions):
+        # Update return types based on dimensions
+        s.RETURN_TYPES = tuple("FLOAT" for _ in range(dimensions))
+        s.RETURN_NAMES = tuple(f"dim_{i+1}" for i in range(dimensions))
 
+    # Initialize with default dimensions
+    RETURN_TYPES = tuple("FLOAT" for _ in range(3))
+    RETURN_NAMES = tuple(f"dim_{i+1}" for i in range(3))
     FUNCTION = "process"
 
-    def __init__(self):
-        self.dimensions = 3  # Default value
-
     def process(self, current, max, dimensions):
-        self.dimensions = dimensions  # Store for RETURN_TYPES
-        return generate_coordinates(current=current, max=max, dimensions=dimensions)
+        self.__class__.update_dimensions(dimensions)
+        coordinates = generate_coordinates(current=current, max=max, dimensions=dimensions)
+        return coordinates  # Return the tuple directly to unpack it into separate outputs
