@@ -21,13 +21,14 @@ class DimensionWalker:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "name": ("STRING", {"default": "name"}),
-                "default_value": ("FLOAT", {"default": 0.0}),
+                "current_frame  ": ("INT", {"default": 0, "min": 0}),
+                "max_frames": ("INT", {"default": 10, "min": 1}),
+                "dimensions": ("INT", {"default": 3, "min": 1})
             },
         }
 
     # Change return type to tuple of floats
-    RETURN_TYPES = ("FLOAT",) * 1  # Adjust the multiplication based on how many coordinates you want to output
+    RETURN_TYPES = ("FLOAT",) * 3 # Adjust the multiplication based on how many coordinates you want to output
     FUNCTION = "process"
 
     # Remove __init__ as ComfyUI handles widget creation differently
