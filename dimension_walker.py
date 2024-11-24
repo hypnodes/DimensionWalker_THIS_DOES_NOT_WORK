@@ -1,30 +1,40 @@
 # Function that generates coordinates in n-dimensional space
 def generate_coordinates(*, current: int, max: int, dimensions: int) -> tuple[float, ...]:
+    if max <= 1:
+        raise ValueError("`max` must be greater than 1 to generate valid coordinates.")
+    if dimensions < 1:
+        raise ValueError("`dimensions` must be at least 1.")
+
     coordinates: list[float] = []
 
     # Get total number of possible states and wrap current frame if needed
-    total_states = (max + 1) ** dimensions
-    current = current % total_states
+    total_states = max ** dimensions
+    current = current % total_states  # Ensure `current` wraps around
 
-    # Treat current frame like a number in base (max+1)
-    # and convert it to coordinates in each dimension
+    # Generate coordinates for each dimension
     for dim in range(dimensions):
-        value = (current // ((max + 1) ** dim)) % (max + 1)
-        normalized_value = value / max
+        # Calculate the value in the current dimension
+        value = (current // (max ** dim)) % max
+        normalized_value = value / (max - 1)  # Normalize to [0, 1]
         coordinates.append(normalized_value)
 
     return tuple(coordinates)
-
-# Custom Node definition
 class DimensionWalker:
     """
     A node that generates n-dimensional coordinates between 0-1,
-    distributed evenly across frames
+    distributed evenly across frames.
     """
     CATEGORY = "hypnodes"
+    FUNCTION = "process"
+    OUTPUT_NODE = True  # Allows dynamic outputs
 
+    # Initialize RETURN_TYPES and RETURN_NAMES with defaults for 3 dimensions
+    RETURN_TYPES = ("FLOAT", "FLOAT", "FLOAT")  # Default to three outputs
+    RETURN_NAMES = ("coord_1", "coord_2", "coord_3")  # Default names for three dimensions
+
+    # Inputs for the node
     @classmethod
-    def INPUT_TYPES(s):
+    def INPUT_TYPES(cls):
         return {
             "required": {
                 "current": ("INT", {"default": 0, "min": 0}),
@@ -33,27 +43,20 @@ class DimensionWalker:
             }
         }
 
-    def __init__(self):
-        self.dimensions = 3
-
+    # Called whenever inputs change in UI
     @classmethod
-    def IS_CHANGED(s, current, max, dimensions):
-        # This gets called when dimensions changes in UI
-        s.update_dimensions(dimensions)
-        return dimensions
-
-    @classmethod
-    def update_dimensions(s, dimensions):
-        # Update return types based on dimensions
-        s.RETURN_TYPES = tuple("FLOAT" for _ in range(dimensions))
-        s.RETURN_NAMES = tuple(f"dim_{i+1}" for i in range(dimensions))
-
-    # Initialize with default dimensions
-    RETURN_TYPES = tuple("FLOAT" for _ in range(3))
-    RETURN_NAMES = tuple(f"dim_{i+1}" for i in range(3))
-    FUNCTION = "process"
+    def IS_CHANGED(cls, current, max, dimensions):
+        cls.RETURN_TYPES = tuple("FLOAT" for _ in range(dimensions))
+        cls.RETURN_NAMES = tuple(f"coord_{i+1}" for i in range(dimensions))
+        return True  # Indicates outputs have changed
 
     def process(self, current, max, dimensions):
-        self.__class__.update_dimensions(dimensions)
-        coordinates = generate_coordinates(current=current, max=max, dimensions=dimensions)
-        return coordinates  # Return the tuple directly to unpack it into separate outputs
+        # Ensure RETURN_TYPES and RETURN_NAMES are updated
+        self.__class__.RETURN_TYPES = tuple("FLOAT" for _ in range(dimensions))
+        self.__class__.RETURN_NAMES = tuple(f"coord_{i+1}" for i in range(dimensions))
+
+        # Generate coordinates
+        coords = generate_coordinates(current=current, max=max, dimensions=dimensions)
+
+        # Return each coordinate as a separate output
+        return tuple(coords)
